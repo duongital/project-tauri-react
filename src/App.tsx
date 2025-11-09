@@ -1,10 +1,40 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { arch, platform, version, type, family, locale, exeExtension } from "@tauri-apps/plugin-os";
+import { InfoCard } from "./components/InfoCard";
+
+interface OsInfo {
+  platform: string;
+  version: string;
+  arch: string;
+  type: string;
+  family: string;
+  locale: string | null;
+  exeExtension: string;
+}
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
+  const [osInfo, setOsInfo] = useState<OsInfo | null>(null);
+
+  useEffect(() => {
+    // Fetch OS information on component mount
+    const fetchOsInfo = async () => {
+      const info: OsInfo = {
+        platform: platform(),
+        version: version(),
+        arch: arch(),
+        type: type(),
+        family: family(),
+        locale: await locale(),
+        exeExtension: exeExtension(),
+      };
+      setOsInfo(info);
+    };
+
+    fetchOsInfo();
+  }, []);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -23,45 +53,22 @@ function App() {
           </p>
         </div>
 
-        <div className="flex justify-center gap-6 mb-12">
-          <a
-            href="https://vite.dev"
-            target="_blank"
-            className="group transform transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-          >
-            <img
-              src="/vite.svg"
-              className="h-20 md:h-24 filter drop-shadow-lg group-hover:drop-shadow-[0_0_2em_#747bff] transition-all duration-500"
-              alt="Vite logo"
-            />
-          </a>
-          <a
-            href="https://tauri.app"
-            target="_blank"
-            className="group transform transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-          >
-            <img
-              src="/tauri.svg"
-              className="h-20 md:h-24 filter drop-shadow-lg group-hover:drop-shadow-[0_0_2em_#24c8db] transition-all duration-500"
-              alt="Tauri logo"
-            />
-          </a>
-          <a
-            href="https://react.dev"
-            target="_blank"
-            className="group transform transition-all duration-300 hover:scale-110 hover:-translate-y-2"
-          >
-            <img
-              src={reactLogo}
-              className="h-20 md:h-24 filter drop-shadow-lg group-hover:drop-shadow-[0_0_2em_#61dafb] transition-all duration-500"
-              alt="React logo"
-            />
-          </a>
-        </div>
-
-        <p className="text-center text-slate-600 dark:text-slate-300 mb-8">
-          Click on the Tauri, Vite, and React logos to learn more.
-        </p>
+        {osInfo && (
+          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-slate-700/50 mb-8">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent mb-6">
+              System Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InfoCard label="Platform" value={osInfo.platform} colorScheme="indigo" />
+              <InfoCard label="Architecture" value={osInfo.arch} colorScheme="blue" />
+              <InfoCard label="Version" value={osInfo.version} colorScheme="violet" />
+              <InfoCard label="Type" value={osInfo.type} colorScheme="pink" />
+              <InfoCard label="Family" value={osInfo.family} colorScheme="emerald" />
+              <InfoCard label="Locale" value={osInfo.locale || 'N/A'} colorScheme="amber" />
+              <InfoCard label="Executable Extension" value={osInfo.exeExtension || 'None'} colorScheme="fuchsia" />
+            </div>
+          </div>
+        )}
 
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20 dark:border-slate-700/50">
           <form
