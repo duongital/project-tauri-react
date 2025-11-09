@@ -17,10 +17,12 @@ jobs:
         include:
           - platform: macos-latest
             target: aarch64-apple-darwin
-          - platform: macos-latest
-            target: x86_64-apple-darwin
-          - platform: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
+          # Uncomment below for Intel Mac builds
+          # - platform: macos-latest
+          #   target: x86_64-apple-darwin
+          # Uncomment below for Linux builds
+          # - platform: ubuntu-latest
+          #   target: x86_64-unknown-linux-gnu
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
 
@@ -46,11 +48,12 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install dependencies (Ubuntu only)
-        if: matrix.platform == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      # Uncomment below for Linux builds
+      # - name: Install dependencies (Ubuntu only)
+      #   if: matrix.platform == 'ubuntu-latest'
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install frontend dependencies
         run: pnpm install
@@ -76,11 +79,12 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app
 
-      - name: Upload artifacts (Linux)
-        if: matrix.platform == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-${{ matrix.target }}
-          path: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
-            src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
+      # Uncomment below for Linux builds
+      # - name: Upload artifacts (Linux)
+      #   if: matrix.platform == 'ubuntu-latest'
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: linux-${{ matrix.target }}
+      #     path: |
+      #       src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
+      #       src-tauri/target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
